@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>はば単 - 校長特製ドリル</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f0f4f8; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; font-size: 22px; margin-bottom: 20px; }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; cursor: pointer; outline: none; }
+        button { background-color: #3498db; color: white; border: none; font-weight: bold; transition: 0.2s; }
+        button:hover { background-color: #2980b9; }
+        .word-box { text-align: center; margin: 20px 0; border-bottom: 2px solid #eee; padding-bottom: 20px; }
+        .english { font-size: 32px; font-weight: bold; color: #e67e22; margin-bottom: 10px; }
+        .japanese { font-size: 20px; color: #7f8c8d; }
+        .example { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 15px; text-align: left; border-left: 4px solid #3498db; }
+        .ex-en { font-style: italic; color: #2c3e50; margin-bottom: 5px; font-size: 16px; }
+        .ex-ja { color: #95a5a6; font-size: 14px; }
+        .choices button { background-color: white; color: #3498db; border: 2px solid #3498db; text-align: left; }
+        .choices button:hover { background-color: #ebf5fb; }
+        .progress { text-align: center; color: #95a5a6; font-size: 14px; margin-bottom: 10px; font-weight: bold; }
+        #history-box { margin-top: 20px; font-size: 12px; color: #7f8c8d; border-top: 1px dashed #ccc; padding-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>はば単 校長エディション</h1>
+
+    <div id="setup-screen" class="screen active">
+        <p style="text-align:center;">ターゲットを選びなさい（にっこにこ）</p>
+        <select id="sheet-selector">
+            <option value="adj">adj (形容詞)</option>
+            <option value="N1">N1 (名詞1)</option>
+            <option value="N2">N2 (名詞2)</option>
+            <option value="N3">N3</option>
+            <option value="N4">N4</option>
+            <option value="N5">N5</option>
+            <option value="N6">N6</option>
+            <option value="N7">N7</option>
+        </select>
+        <button onclick="startApp()">特訓開始</button>
+    </div>
+
+    <div id="study-screen" class="screen">
+        <div class="progress" id="study-progress"></div>
+        <div class="word-box">
+            <div class="english" id="study-en"></div>
+            <div class="japanese" id="study-ja"></div>
+            <div class="example">
+                <div class="ex-en" id="study-ex-en"></div>
+                <div class="ex-ja" id="study-ex-ja"></div>
+            </div>
+        </div>
+        <button onclick="nextStudy()">覚えた！次へ</button>
+    </div>
+
+    <div id="test-screen" class="screen">
+        <div class="progress" id="test-progress"></div>
+        <div class="word-box">
+            <div class="english" id="test-en"></div>
+        </div>
+        <div class="choices" id="test-choices"></div>
+        <div id="history-box">直近の正解: <span id="history-list">-</span></div>
+    </div>
+</div>
+
+<script>
+    // 校長が公開したスプレッドシートのID
+//    const SPREADSHEET_ID = '1-yVjb9GFuPDY-7Sl7SY2l0ViOlzffEmGGZ2NMhf9IXY';
+// さっきのコードの startApp 関数の中にある URL をこれに差し替え
+const url = `https://docs.google.com/spreadsheets/d/1-yVjb9GFuPDY-7Sl7SY2l0ViOlzffEmGGZ2NMhf9IXY/export?format=csv&gid=0`;
+    let currentSheetData = [];
+    let currentIndex = 0;
+    let loopStartIndex = 0;
+    let history = [];
+    const LOOP_SIZE = 5;
+
+async function startApp() {
+    const sheetName = document.getElementById('sheet-selector').value;
+    
+    // 変数を使わず、URLを直接「文字列」として書くのが一番安全です！
+    const url = "https://docs.google.com/spreadsheets/d/1-yVjb9GFuPDY-7Sl7SY2l0ViOlzffEmGGZ2NMhf9IXY/gviz/tq?tqx=out:csv&sheet=" + sheetName;
+    
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const text = await response.text();
+        
+        // 以下、データの読み込み処理（ここは前のコードと同じ）
+
+	// startApp関数の中のデータ処理部分をこれに差し替え
+	const rows = text.split(/\r?\n/).slice(1); // 改行コードの違いを吸収しつつ1行目を捨てる
+
+	currentSheetData = rows.map(row => {
+    	// CSV特有の "A","B","C" という形式を正しく分解する魔法の正規表現
+    	const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
+    	return { 
+       		en: cols[0], 
+        	ja: cols[1], 
+        	exEn: cols[2], 
+        	exJa: cols[3] 
+    	};
+	}).filter(d => d.en && d.ja); // 単語と意味が両方ある行だけを採用
+
+        if (currentSheetData.length === 0) {
+            alert("シートが空っぽか、名前が間違っているみたいよ（にっこにこ）");
+            return;
+        }
+
+        currentIndex = 0;
+        loopStartIndex = 0;
+        showStudy();
+    } catch (e) {
+        console.error(e);
+        alert("読み込みエラー！\n・ネットに繋がっているか\n・スプレッドシートが『ウェブに公開』されているか\n確認してね。");
+    }
+}
+
+    function showStudy() {
+        switchScreen('study-screen');
+        const word = currentSheetData[currentIndex];
+        document.getElementById('study-progress').innerText = `【暗記】 ${currentIndex + 1} / ${currentSheetData.length}`;
+        document.getElementById('study-en').innerText = word.en;
+        document.getElementById('study-ja').innerText = word.ja;
+        document.getElementById('study-ex-en').innerText = word.exEn || "(例文なし)";
+        document.getElementById('study-ex-ja').innerText = word.exJa || "";
+    }
+
+    function nextStudy() {
+        currentIndex++;
+        // 5題終わるか、最後まで行ったらテストへ
+        if (currentIndex % LOOP_SIZE === 0 || currentIndex >= currentSheetData.length) {
+            currentIndex = loopStartIndex; // テスト用にインデックスを戻す
+            showTest();
+        } else {
+            showStudy();
+        }
+    }
+
+    function showTest() {
+        switchScreen('test-screen');
+        const word = currentSheetData[currentIndex];
+        document.getElementById('test-progress').innerText = `【テスト】 ${currentIndex + 1}問目`;
+        document.getElementById('test-en').innerText = word.en;
+
+        // 誤答を他の行からランダム抽出
+        let choices = [word.ja];
+        let allJa = currentSheetData.map(d => d.ja);
+        while (choices.length < 4) {
+            let randomJa = allJa[Math.floor(Math.random() * allJa.length)];
+            if (!choices.includes(randomJa)) choices.push(randomJa);
+        }
+        choices.sort(() => Math.random() - 0.5);
+
+        const choiceArea = document.getElementById('test-choices');
+        choiceArea.innerHTML = '';
+        choices.forEach(c => {
+            const btn = document.createElement('button');
+            btn.innerText = c;
+            btn.onclick = () => checkAnswer(c === word.ja, word.en);
+            choiceArea.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(isCorrect, english) {
+        if (!isCorrect) {
+            alert("ちがうよ！校長の努力を無駄にする気！？");
+            return;
+        }
+        
+        // 履歴を記録（直近5件）
+        history.push(english);
+        if (history.length > 5) history.shift();
+        document.getElementById('history-list').innerText = history.join(', ');
+
+        currentIndex++;
+        // テストループ（5題）が終了したか
+        if (currentIndex % LOOP_SIZE === 0 || currentIndex >= currentSheetData.length) {
+            loopStartIndex = currentIndex;
+            if (currentIndex >= currentSheetData.length) {
+                alert("全問制覇！お疲れ様でした（にっこにこ）");
+                location.reload();
+            } else {
+                showStudy();
+            }
+        } else {
+            showTest();
+        }
+    }
+
+    function switchScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+</script>
+
+</body>
+</html>
