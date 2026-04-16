@@ -28,7 +28,7 @@
 <body>
 
 <div class="container">
-    <h1>英単語を覚えましょう！</h1>
+    <h1>5問毎に確認問題が出題されます</h1>
 
     <div id="setup-screen" class="screen active">
         <p style="text-align:center;">ターゲットを選びましょう</p>
@@ -145,7 +145,7 @@ async function startApp() {
         document.getElementById('study-ex-en').innerText = word.exEn || "(例文なし)";
         document.getElementById('study-ex-ja').innerText = word.exJa || "";
 	//window.speechSynthesis.speak(new SpeechSynthesisUtterance(currentSheetData[currentIndex].en));
-playEnglish(currentSheetData[currentIndex].en);
+　　　　playEnglish(currentSheetData[currentIndex].en);
 
     }
 
@@ -165,6 +165,7 @@ playEnglish(currentSheetData[currentIndex].en);
         const word = currentSheetData[currentIndex];
         document.getElementById('test-progress').innerText = `【テスト】 ${currentIndex + 1}問目`;
         document.getElementById('test-en').innerText = word.en;
+	playEnglish(currentSheetData[currentIndex].en);
 
         // 誤答を他の行からランダム抽出
         let choices = [word.ja];
