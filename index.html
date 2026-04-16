@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>はば単 - 校長特製ドリル</title>
+    <title>はば単 - 特製ドリル</title>
     <style>
         body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #ffffff; margin: 0; padding: 20px; color: #000000; }
         .container { max-width: 600px; margin: 0 auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -75,7 +75,7 @@
 </div>
 
 <script>
-    // 校長が公開したスプレッドシートのID
+    // お姉が公開したスプレッドシートのID
 //    const SPREADSHEET_ID = '1-yVjb9GFuPDY-7Sl7SY2l0ViOlzffEmGGZ2NMhf9IXY';
 // さっきのコードの startApp 関数の中にある URL をこれに差し替え
 const url = `https://docs.google.com/spreadsheets/d/1-yVjb9GFuPDY-7Sl7SY2l0ViOlzffEmGGZ2NMhf9IXY/export?format=csv&gid=0`;
@@ -183,7 +183,7 @@ playEnglish(currentSheetData[currentIndex].en);
 
     function checkAnswer(isCorrect, english) {
         if (!isCorrect) {
-            alert("ちがうよ！校長の努力を無駄にする気！？");
+            alert("ちがうよ！他のを選んで！");
             return;
         }
         
