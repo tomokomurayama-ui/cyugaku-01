@@ -140,6 +140,8 @@ async function startApp() {
         document.getElementById('study-ja').innerText = word.ja;
         document.getElementById('study-ex-en').innerText = word.exEn || "(例文なし)";
         document.getElementById('study-ex-ja').innerText = word.exJa || "";
+	window.speechSynthesis.speak(new SpeechSynthesisUtterance(currentSheetData[currentIndex].en));
+
     }
 
     function nextStudy() {
@@ -208,6 +210,15 @@ async function startApp() {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
     }
+
+// 英語を読み上げるための専用の部品（関数）
+function playEnglish(text) {
+    // ブラウザの読み上げ機能を呼び出す
+    const uttr = new SpeechSynthesisUtterance(text);
+    uttr.lang = 'en-US'; // 英語(アメリカ)
+    uttr.rate = 1.0;     // 速さ
+    window.speechSynthesis.speak(uttr);
+}
 </script>
 
 </body>
