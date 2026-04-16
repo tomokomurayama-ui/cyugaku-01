@@ -140,7 +140,8 @@ async function startApp() {
         document.getElementById('study-ja').innerText = word.ja;
         document.getElementById('study-ex-en').innerText = word.exEn || "(例文なし)";
         document.getElementById('study-ex-ja').innerText = word.exJa || "";
-	window.speechSynthesis.speak(new SpeechSynthesisUtterance(currentSheetData[currentIndex].en));
+	//window.speechSynthesis.speak(new SpeechSynthesisUtterance(currentSheetData[currentIndex].en));
+playEnglish(currentSheetData[currentIndex].en);
 
     }
 
