@@ -218,20 +218,13 @@ async function startApp() {
         document.getElementById(id).classList.add('active');
     }
 
-
 // 英語を読み上げるための専用の部品（関数）
 function playEnglish(text) {
-    // Googleの高品質な音声URL（TTS）を直接再生
-    const audio = new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=en&client=tw-ob`);
-    
-    // 再生速度（1.0が標準。少しゆっくりにするなら0.9など）
-    audio.playbackRate = 1.0;
-    
-    // 再生を実行
-    audio.play().catch(e => {
-        // ブロックされた場合やエラー時は、合成音声に逃げず「何もしない（無音）」
-        console.log("Audio playback was blocked or failed. Keeping silent.");
-    });
+    // ブラウザの読み上げ機能を呼び出す
+    const uttr = new SpeechSynthesisUtterance(text);
+    uttr.lang = 'en-US'; // 英語(アメリカ)
+    uttr.rate = 1.0;     // 速さ
+    window.speechSynthesis.speak(uttr);
 }
 </script>
 
